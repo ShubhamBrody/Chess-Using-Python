@@ -15,19 +15,21 @@ alpha_chk = {'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7}
 def print_board(chess,fallen):
 	i = 0
 	for I in range(8):
-		print("+----+----+----+----+----+----+----+----+")
+		print("\t+----+----+----+----+----+----+----+----+")
+		print("\t",end = "")
 		for J in range(8):
 			print("| "+chess[J][I],end=" ")
 		print("| ", str(i))
 		i+=1
-	print("+----+----+----+----+----+----+----+----+")
-	print("   a    b    c    d    e    f    g    h  ")
+	print("\t+----+----+----+----+----+----+----+----+")
+	print("\t   a    b    c    d    e    f    g    h  ")
 	print("\n\n")
 	if not fallen:
 		print("There are no fallen spawns.")
 	else:
-		for A in fallen:
-			print(A,end = " ")
+		print("The fallen are:")
+		print(", ".join(fallen))
+		print()
 			
 #print_board(chess,fallen)
 
@@ -244,7 +246,8 @@ def respawn_inp(fallen,chess):
 					c = 1
 					print("The respawn request is accepted.")
 			if respawnner != "none":
-				chess[0][chess[0].index[i]] = respawnner
+				chess[A][0] = respawnner
+				fallen.remove(respawnner)
 				break
 	for A in range(8):
 		i = chess[A][7]
@@ -266,7 +269,8 @@ def respawn_inp(fallen,chess):
 					c = 1
 					print("The respawn request is accepted.")
 			if respawnner != "none":
-				chess[0][chess[0].index[i]] = respawnner
+				chess[A][7] = respawnner
+				fallen.remove(respawnner)
 				break
 	return True
 	
@@ -274,6 +278,7 @@ def respawn_inp(fallen,chess):
 king_dead = 0
 i = 0
 prev_string = 'W'
+print("\t\t**********WELCOME TO ELECTRONIC CHESS**********")
 while king_dead == 0:
 	print_board(chess,fallen)
 	print("Player 1 is BLACK.Player 2 is WHITE.")		
@@ -317,6 +322,7 @@ while king_dead == 0:
 			print("The position mentioned is out of reach")
 		if pos_avail_chk(string,chess) == False:
 			print("The road for the spawns journey is not clear")
+print_board(chess,fallen)
 if "BK" in fallen:
 	print("Player 2 wins!!!\n Turns = " + str(i//2))
 else:
