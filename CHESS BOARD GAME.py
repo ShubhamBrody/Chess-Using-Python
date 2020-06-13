@@ -1,3 +1,4 @@
+
 chess = [["WR","WS","  ","  ","  ","  ","BS","BR"],
 		 ["WN","WS","  ","  ","  ","  ","BS","BN"],
 		 ["WB","WS","  ","  ","  ","  ","BS","BB"],
@@ -247,7 +248,7 @@ def respawn_inp(fallen,chess):
 					print("The respawn request is accepted.")
 			if respawnner != "none":
 				chess[A][0] = respawnner
-				fallen.remove(respawnner)
+				fallen
 				break
 	for A in range(8):
 		i = chess[A][7]
@@ -279,6 +280,8 @@ king_dead = 0
 i = 0
 prev_string = 'W'
 print("\t\t**********WELCOME TO ELECTRONIC CHESS**********")
+
+print("HOW TO INPUT:\n e.g. : BNB7BNC5\nHere index 0 and 1 collectively contains the spawn to be moved and also index 4 and 5.\nIndex 2 and 3 denote the current position of the spawn while 6 and 7 index denote the desired position of the spawn.\n\nLET'S PLAY!!!")
 while king_dead == 0:
 	print_board(chess,fallen)
 	print("Player 1 is BLACK.Player 2 is WHITE.")		
@@ -288,6 +291,7 @@ while king_dead == 0:
 		print("Chance for Player 2:")
 	string = input()
 	if len(string) != 8 or " " in string:
+		print("The string is Wrong. Please input again")
 		continue
 	string = list(string)
 	for j in range(8):
@@ -316,14 +320,14 @@ while king_dead == 0:
 			print("String input error")
 		if str_verifier(string,prev_string) == 3:
 			print("Can't move spawn to it's current location")
-		if pos_spawn_chk(string,chess) == False:
+		if str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == False:
 			print("The mentioned spawn is not located at the secified block.")
-		if pos_verifier(string,chess) == False:
+		if str_verifier(string,prev_string) == 0 and pos_verifier(string,chess) == False:
 			print("The position mentioned is out of reach")
-		if pos_avail_chk(string,chess) == False:
+		if str_verifier(string,prev_string) == 0 and pos_avail_chk(string,chess) == False:
 			print("The road for the spawns journey is not clear")
 print_board(chess,fallen)
 if "BK" in fallen:
-	print("Player 2 wins!!!\n Turns = " + str(i//2))
+	print("Player 2 wins!!!\nTurns = " + str(i//2))
 else:
-	print("Player 1 wins!!!\n Turns = " + str(i//2+1))
+	print("Player 1 wins!!!\nTurns = " + str(i//2+1))
