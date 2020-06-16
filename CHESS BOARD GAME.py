@@ -268,8 +268,8 @@ def cast_allow_chk(col,pos):
 		for i in range(3):
 			if chess[i+1][adp[col]] != "  ":
 				return False
-		stringerK = '2' + str(adp[col])
-		stringerR = '3' + str(adp[col])
+		stringerK = 'C' + str(adp[col])
+		stringerR = 'D' + str(adp[col])
 		if chkmate(stringerK,col) == True or chkmate(stringerR,col) == True:
 			return False
 		else:
@@ -278,8 +278,8 @@ def cast_allow_chk(col,pos):
 		for i in range(2):
 			if chess[i+5][adp[col]] != "  "	:
 				return False
-		stringerK = '6' + str(adp[col])
-		stringerR = '5' + str(adp[col])
+		stringerK = 'G' + str(adp[col])
+		stringerR = 'H' + str(adp[col])
 		if chkmate(stringerK,col) == True or chkmate(stringerR,col) == True:
 			return False
 		else:
@@ -288,6 +288,7 @@ def cast_allow_chk(col,pos):
 		return True
 	else:
 		return False
+
 def chkmate(loc,co):
 	col = alpha_chk[loc[0]]-1
 	row = int(loc[1])-1
