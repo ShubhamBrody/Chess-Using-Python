@@ -2,11 +2,15 @@
 chess = [["WR","WS","  ","  ","  ","  ","BS","BR"],
 		 ["WN","WS","  ","  ","  ","  ","BS","BN"],
 		 ["WB","WS","  ","  ","  ","  ","BS","BB"],
-		 ["WK","WS","  ","  ","  ","  ","BS","BK"],
 		 ["WQ","WS","  ","  ","  ","  ","BS","BQ"],
+		 ["WK","WS","  ","  ","  ","  ","BS","BK"],
 		 ["WB","WS","  ","  ","  ","  ","BS","BB"],
 		 ["WN","WS","  ","  ","  ","  ","BS","BN"],
 		 ["WR","WS","  ","  ","  ","  ","BS","BR"]]
+
+adp = {'W':0,'B':7}
+
+di = {'W':'B','B':'W'}
 
 fallen = []
 
@@ -39,22 +43,28 @@ def print_board(chess,fallen):
 # Code 1 is player getting two turns
 # Code 2 means string input error
 # Code 3 means can't move spawn at the same location
-def str_verifier(string,prev_str):
-	if string[0] == prev_str[0]:
-		return 1
-	if string[0] not in ['B','W'] or string[4] not in ['B','W']:
-		return 2
-	if string[1] not in ['B','N','R','K','Q','S'] or string[5] not in ['B','N','R','K','Q','S']:
-		return 2
-	if string[2] not in ['A','B','C','D','E','F','G','H'] or string[6] not in ['A','B','C','D','E','F','G','H']:
-		return 2
-	if string[3] not in ['1','2','3','4','5','6','7','0'] or string[7] not in ['1','2','3','4','5','6','7','0']:
-		return 2
-	if str([string[0],string[1]]) != str([string[4],string[5]]):
-		return 2
-	if str([string[2],string[3]]) == str([string[6],string[7]]):
-		return 3
-	return 0
+def str_verifier(string,prev_str,castreq = 0,col = 0,pos = 0):
+	if castreq == 0:
+		if string[0] == prev_str[0]:
+			return 1
+		if string[0] not in ['B','W'] or string[4] not in ['B','W']:
+			return 2
+		if string[1] not in ['B','N','R','K','Q','S'] or string[5] not in ['B','N','R','K','Q','S']:
+			return 2
+		if string[2] not in ['A','B','C','D','E','F','G','H'] or string[6] not in ['A','B','C','D','E','F','G','H']:
+			return 2
+		if string[3] not in ['1','2','3','4','5','6','7','0'] or string[7] not in ['1','2','3','4','5','6','7','0']:
+			return 2
+		if str([string[0],string[1]]) != str([string[4],string[5]]):
+			return 2
+		if str([string[2],string[3]]) == str([string[6],string[7]]):
+			return 3
+		return 0
+	else:
+		if col in ['B','W'] and pos in ['L','R']:
+			return 0
+		else:
+			return 2
 
 # This fn has the duty to verify that the position mentioned is a valid move irrespective of position of other spawns	
 def pos_verifier(string,chess):
@@ -226,62 +236,164 @@ def pos_avail_chk(string,chess):
 	return road_chk(string,chess,orientation)
 	
 #This function follows the respawn protocol
-def respawn_inp(fallen,chess):
+prom = ["N","R","B","Q"]
+def promote_inp(col,chess):
 	for A in range(8):
-		i = chess[A][0]
-		if i in ["BS","BR","BB","BK","BQ"]:
-			print("You can respawn someone. Enter the code for the the spawn to be respawned.\n If you dont want to respawn someone enter 'none'.")
-			print("You can respawn from: ")
-			for j in fallen:
-				print(j,end = " ")
-			c = 0
+		i = chess[A][adp[col]]
+		if i == "BS":
+			print("You can Promote a soldier. Enter the code for the the replacing spawn.\n If you dont want to promote, enter 'none'.")
+			print("You can Promote from:\n"+di[col])
+			(" " + di[col]).join(prom)
 			while c == 0:
-				respawnner = input()
-				if respawnner == "none":
+				promoter = input()
+				promoter = promoter.upper()
+				if promoter == "none":
 					break
-				elif respawnner not in fallen:
+				elif promoter[1] not in prom:
 					print("The spawn not in the list.")
-				elif respawnner[0] != 'B':
+				elif promoter[0] != 'B':
 					print("You're not allowed to respawn this spawn")
 				else:
 					c = 1
 					print("The respawn request is accepted.")
-			if respawnner != "none":
-				chess[A][0] = respawnner
-				fallen
-				break
-	for A in range(8):
-		i = chess[A][7]
-		if i in ["WS","WR","WB","WK","WQ"]:
-			print("You can respawn someone. Enter the code for the the spawn to be respawned.\n If you dont want to respawn someone enter 'none'.")
-			print("You can respawn from: ")
-			for j in fallen:
-				print(j,end = " ")
-			c = 0
-			while c == 0:
-				respawnner = input()
-				if respawnner == "none":
-					break
-				elif respawnner not in fallen:
-					print("The spawn not in the list.")
-				elif respawnner[0] != 'W':
-					print("You're not allowed to respawn this spawn")
-				else:
-					c = 1
-					print("The respawn request is accepted.")
-			if respawnner != "none":
-				chess[A][7] = respawnner
-				fallen.remove(respawnner)
+			if promoter != "none":
+				chess[A][adp[col]] = promoter
 				break
 	return True
-	
 
+
+#This fn's duty is to check if the castling input is valid or not
+def cast_allow_chk(col,pos):
+	if pos == 'L':
+		for i in range(3):
+			if chess[i+1][adp[col]] != "  ":
+				return False
+		stringerK = '2' + str(adp[col])
+		stringerR = '3' + str(adp[col])
+		if chkmate(stringerK,col) == True or chkmate(stringerR,col) == True:
+			return False
+		else:
+			return True
+	elif pos == 'R':
+		for i in range(2):
+			if chess[i+5][adp[col]] != "  "	:
+				return False
+		stringerK = '6' + str(adp[col])
+		stringerR = '5' + str(adp[col])
+		if chkmate(stringerK,col) == True or chkmate(stringerR,col) == True:
+			return False
+		else:
+			return True
+	if chkmate('E'+str(adp[col]), col) == False:
+		return True
+	else:
+		return False
+def chkmate(loc,co):
+	col = alpha_chk[loc[0]]-1
+	row = int(loc[1])-1
+	while col>=0 and row>=0:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		col-=1
+		row-=1
+	col = alpha_chk[loc[0]]-1
+	row = int(loc[1])+1	
+	while col>=0 and row<=7:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		col-=1
+		row+=1
+	col = alpha_chk[loc[0]]+1
+	row = int(loc[1])-1
+	while col<=7 and row>=0:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		col+=1
+		row-=1
+	col = alpha_chk[loc[0]]-1
+	row = int(loc[1])
+	while col>=0:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		col-=i
+	col = alpha_chk[loc[0]]
+	row = int(loc[1])-1
+	while row>=0:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		row-=1
+	col = alpha_chk[loc[0]]
+	row = int(loc[1])+1
+	while row<=7:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		row+=j
+	col = alpha_chk[loc[0]]+1
+	row = int(loc[1])
+	while col<=7:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		col+=1
+	col = alpha_chk[loc[0]]+1
+	row = int(loc[1])+1
+	while col<=7 and row<=7:
+		if chess[col][row] != "  ":
+			if chess[col][row][0] == di[co]:
+				stringer = chess[col][row] + chr(col+65) + str(row) + chess[col][row] + loc
+				if pos_verifier(stringer,chess) == True:
+					return True
+			else:
+				break
+		col+=1
+		row+=1
+	return False
 king_dead = 0
 i = 0
 prev_string = 'W'
+cawhite = 0
+cablack = 0
+cdi = {"BK":0,"WK":0,"RW":0,"RB":0,"LW":0,"LB":0}
+Blocation = "E7"
+Wlocation = "E0"
 print("\t\t**********WELCOME TO ELECTRONIC CHESS**********")
 
-print("HOW TO INPUT:\n e.g. : BNB7BNC5\nHere index 0 and 1 collectively contains the spawn to be moved and also index 4 and 5.\nIndex 2 and 3 denote the current position of the spawn while 6 and 7 index denote the desired position of the spawn.\n\nLET'S PLAY!!!")
+print("HOW TO INPUT:\n e.g. : BNB7BNC5\nHereindex 0 and 1 collectively contains the spawn to be moved and also index 4 and 5.\nIndex 2 and 3 denote the current position of the spawn while 6 and 7 index denote the desired position of the spawn.")
+print("If you want to do castling then your input should look like...'CASTLING W L',where 'castling' obviously points out that you are trying to do a castling move,\nW points out that you are trying to move white king and rook(Don't try to move other player's king as it won't happen)for black you must use 'B'.\nAnd finally L means left i.e. Left rook is to be moved, use 'R' for moving right rook\n\nLET'S PLAY!!!")
 while king_dead == 0:
 	print_board(chess,fallen)
 	print("Player 1 is BLACK.Player 2 is WHITE.")		
@@ -290,35 +402,104 @@ while king_dead == 0:
 	else:
 		print("Chance for Player 2:")
 	string = input()
-	if len(string) != 8 or " " in string:
+	castreq = 0
+	col = 0
+	pos = 0
+	if string.split(" ",1)[0].upper() == "CASTLING":
+		req,col,pos = string.split()
+		req = req.upper()
+		col = col.upper()
+		pos = pos.upper()
+		castreq = 1
+	elif len(string) != 8 or " " in string:
 		print("The string is Wrong. Please input again")
 		continue
-	string = list(string)
-	for j in range(8):
-		if string[j].isalpha() == True:
-			string[j] = string[j].upper()
+	else:
+		string = list(string)
+		for j in range(8):
+			if string[j].isalpha() == True:
+				string[j] = string[j].upper()
 	#print(str(string))
 	c = 0
-	if str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == True and  pos_verifier(string,chess) == True and pos_avail_chk(string,chess) == True:
+	if castreq == 0 and str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == True and pos_verifier(string,chess) == True and pos_avail_chk(string,chess) == True: 
 		qw = pos_mover(string,chess)
+		if string[:4] == "BKE7":
+			cdi["BK"] = 1
+		elif string[:4] == "WKE0":
+			cdi["WK"] = 1
+		elif string[:4] == "BRA7":
+			cdi["RB"] = 1
+		elif string[:4] == "BRH7":
+			cdi["LB"] = 1
+		elif string[:4] == "WRA0":
+			cdi["LW"] = 1
+		elif string[:4] == "WRH0":
+			cdi["RW"] = 1
+		if string[0]+string[1] == "BK":
+			Blocation = string[6]+string[7]
+		if string[0]+string[1] == "WK":
+			Wlocation = string[6]+string[7]
 		if qw == 'K':
 			king_dead = 1
 			continue
-		respawn_inp(fallen,chess)
+		promote_inp(di[string[0]],chess)
+		if i%2 == 0:
+			if chkmate(Blocation,"B") == True:
+				print("*****CHECKMATE*****")
+		else:
+			if chkmate(Wlocation,"W") == True:
+				print("*****CHECKMATE*****")
 		if prev_string == "B":
 			prev_string = "W"
 		else:
 			prev_string = "B"
 		c = 1
 		i+=1
+	elif castreq != 0:
+		if str_verifier([],[],castreq,col,pos) == 0:
+			if cdi[pos+col] == 0 and cdi[col+"K"] == 0:
+				if cast_allow_chk(col,pos) == True:
+					i+=1
+					if col == "W" and pos == "R":
+						chess[6][0] = "WK"
+						chess[5][0] = "WR"
+						chess[7][0] = "  "
+						chess[4][0] = "  "
+						cawhite = 1
+					elif col == "W" and pos == "L":
+						chess[2][0] = "WK"
+						chess[3][0] = "WR"
+						chess[0][0] = "  "
+						chess[4][0] = "  "
+						cawhite = 1
+					elif col == "B" and pos == "R":
+						chess[6][7] = "BK"
+						chess[5][7] = "BR"
+						chess[7][7] = "  "
+						chess[4][7] = "  "
+						cablack = 1
+					else:
+						chess[2][7] = "BK"
+						chess[3][7] = "BR"
+						chess[0][7] = "  "
+						chess[4][7] = "  "
+						cablack = 1
+				else:
+					print("Casting is not allowed.")
+					continue
+			else:
+				print("Castling is being done using moved king and/or rook")
+				continue
+		else:
+			c = 0
 	if c == 0:
-		if str_verifier(string,prev_string) == 1 and i == 0:
+		if str_verifier(string,prev_string,castreq,col,pos) == 1 and i == 0:
 			print("Chance is for player 1 which is black. You are moving white")
-		if str_verifier(string,prev_string) == 1:
+		if str_verifier(string,prev_string,castreq,col,pos) == 1:
 			print("Two consecutive turns to a player is not allowed")
-		if str_verifier(string,prev_string) == 2:
+		if str_verifier(string,prev_string,castreq,pos,col) == 2:
 			print("String input error")
-		if str_verifier(string,prev_string) == 3:
+		if str_verifier(string,prev_string,castreq,pos,col) == 3:
 			print("Can't move spawn to it's current location")
 		if str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == False:
 			print("The mentioned spawn is not located at the secified block.")
