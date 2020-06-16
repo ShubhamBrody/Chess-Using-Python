@@ -391,125 +391,162 @@ cablack = 0
 cdi = {"BK":0,"WK":0,"RW":0,"RB":0,"LW":0,"LB":0}
 Blocation = "E7"
 Wlocation = "E0"
+
+game = 0
 print("\t\t**********WELCOME TO ELECTRONIC CHESS**********")
 
 print("HOW TO INPUT:\n e.g. : BNB7BNC5\nHereindex 0 and 1 collectively contains the spawn to be moved and also index 4 and 5.\nIndex 2 and 3 denote the current position of the spawn while 6 and 7 index denote the desired position of the spawn.")
-print("If you want to do castling then your input should look like...'CASTLING W L',where 'castling' obviously points out that you are trying to do a castling move,\nW points out that you are trying to move white king and rook(Don't try to move other player's king as it won't happen)for black you must use 'B'.\nAnd finally L means left i.e. Left rook is to be moved, use 'R' for moving right rook\n\nLET'S PLAY!!!")
-while king_dead == 0:
-	print_board(chess,fallen)
-	print("Player 1 is BLACK.Player 2 is WHITE.")		
-	if i%2 == 0:
-		print("Chance for Player 1:")
-	else:
-		print("Chance for Player 2:")
-	string = input()
-	castreq = 0
-	col = 0
-	pos = 0
-	if string.split(" ",1)[0].upper() == "CASTLING":
-		req,col,pos = string.split()
-		req = req.upper()
-		col = col.upper()
-		pos = pos.upper()
-		castreq = 1
-	elif len(string) != 8 or " " in string:
-		print("The string is Wrong. Please input again")
-		continue
-	else:
-		string = list(string)
-		for j in range(8):
-			if string[j].isalpha() == True:
-				string[j] = string[j].upper()
-	#print(str(string))
-	c = 0
-	if castreq == 0 and str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == True and pos_verifier(string,chess) == True and pos_avail_chk(string,chess) == True: 
-		qw = pos_mover(string,chess)
-		if string[:4] == "BKE7":
-			cdi["BK"] = 1
-		elif string[:4] == "WKE0":
-			cdi["WK"] = 1
-		elif string[:4] == "BRA7":
-			cdi["RB"] = 1
-		elif string[:4] == "BRH7":
-			cdi["LB"] = 1
-		elif string[:4] == "WRA0":
-			cdi["LW"] = 1
-		elif string[:4] == "WRH0":
-			cdi["RW"] = 1
-		if string[0]+string[1] == "BK":
-			Blocation = string[6]+string[7]
-		if string[0]+string[1] == "WK":
-			Wlocation = string[6]+string[7]
-		if qw == 'K':
-			king_dead = 1
-			continue
-		promote_inp(di[string[0]],chess)
+print("If you want to do castling then your input should look like...'CASTLING W L',where 'castling' obviously points out that you are trying to do a castling move,\nW points out that you are trying to move white king and rook(Don't try to move other player's king as it won't happen)for black you must use 'B'.\nAnd finally L means left i.e. Left rook is to be moved, use 'R' for moving right rook\nIf you want to reset the game, then you can do so by typing 'reset' in the input.\nLET'S PLAY!!!")
+while game == 0:
+	king_dead = 0
+	i = 0
+	prev_string = 'W'
+	cawhite = 0
+	cablack = 0
+	cdi = {"BK":0,"WK":0,"RW":0,"RB":0,"LW":0,"LB":0}
+	Blocation = "E7"
+	Wlocation = "E0"
+	re = 0
+	
+	chess = [["WR","WS","  ","  ","  ","  ","BS","BR"],
+			["WN","WS","  ","  ","  ","  ","BS","BN"],
+			["WB","WS","  ","  ","  ","  ","BS","BB"],
+			["WQ","WS","  ","  ","  ","  ","BS","BQ"],
+			["WK","WS","  ","  ","  ","  ","BS","BK"],
+			["WB","WS","  ","  ","  ","  ","BS","BB"],
+			["WN","WS","  ","  ","  ","  ","BS","BN"],
+			["WR","WS","  ","  ","  ","  ","BS","BR"]]
+			
+	fallen.clear()
+
+	while king_dead == 0:
+		print_board(chess,fallen)
+		print("Player 1 is BLACK.Player 2 is WHITE.")		
 		if i%2 == 0:
-			if chkmate(Blocation,"B") == True:
-				print("*****CHECKMATE*****")
+			print("Chance for Player 1:")
 		else:
-			if chkmate(Wlocation,"W") == True:
-				print("*****CHECKMATE*****")
-		if prev_string == "B":
-			prev_string = "W"
+			print("Chance for Player 2:")
+		string = input()
+		if string.upper() == "RESET":
+			re = 1
+			break
+		castreq = 0
+		col = 0
+		pos = 0
+		if string.split(" ",1)[0].upper() == "CASTLING":
+			req,col,pos = string.split()
+			req = req.upper()
+			col = col.upper()
+			pos = pos.upper()
+			castreq = 1
+		elif len(string) != 8 or " " in string:
+			print("The string is Wrong. Please input again")
+			continue
 		else:
-			prev_string = "B"
-		c = 1
-		i+=1
-	elif castreq != 0:
-		if str_verifier([],[],castreq,col,pos) == 0:
-			if cdi[pos+col] == 0 and cdi[col+"K"] == 0:
-				if cast_allow_chk(col,pos) == True:
-					i+=1
-					if col == "W" and pos == "R":
-						chess[6][0] = "WK"
-						chess[5][0] = "WR"
-						chess[7][0] = "  "
-						chess[4][0] = "  "
-						cawhite = 1
-					elif col == "W" and pos == "L":
-						chess[2][0] = "WK"
-						chess[3][0] = "WR"
-						chess[0][0] = "  "
-						chess[4][0] = "  "
-						cawhite = 1
-					elif col == "B" and pos == "R":
-						chess[6][7] = "BK"
-						chess[5][7] = "BR"
-						chess[7][7] = "  "
-						chess[4][7] = "  "
-						cablack = 1
+			string = list(string)
+			for j in range(8):
+				if string[j].isalpha() == True:
+					string[j] = string[j].upper()
+		#print(str(string))
+		c = 0
+		if castreq == 0 and str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == True and pos_verifier(string,chess) == True and pos_avail_chk(string,chess) == True: 
+			qw = pos_mover(string,chess)
+			if string[:4] == "BKE7":
+				cdi["BK"] = 1
+			elif string[:4] == "WKE0":
+				cdi["WK"] = 1
+			elif string[:4] == "BRA7":
+				cdi["RB"] = 1
+			elif string[:4] == "BRH7":
+				cdi["LB"] = 1
+			elif string[:4] == "WRA0":
+				cdi["LW"] = 1
+			elif string[:4] == "WRH0":
+				cdi["RW"] = 1
+			if string[0]+string[1] == "BK":
+				Blocation = string[6]+string[7]
+			if string[0]+string[1] == "WK":
+				Wlocation = string[6]+string[7]
+			if qw == 'K':
+				king_dead = 1
+				continue
+			promote_inp(di[string[0]],chess)
+			if i%2 == 0:
+				if chkmate(Blocation,"B") == True:
+					print("\t\t*****CHECKMATE*****")
+			else:
+				if chkmate(Wlocation,"W") == True:
+					print("\t\t*****CHECKMATE*****")
+			if prev_string == "B":
+				prev_string = "W"
+			else:
+				prev_string = "B"
+			c = 1
+			i+=1
+		elif castreq != 0:
+			if str_verifier([],[],castreq,col,pos) == 0:
+				if cdi[pos+col] == 0 and cdi[col+"K"] == 0:
+					if cast_allow_chk(col,pos) == True:
+						i+=1
+						c = 1
+						if col == "W" and pos == "R":
+							chess[6][0] = "WK"
+							chess[5][0] = "WR"
+							chess[7][0] = "  "
+							chess[4][0] = "  "
+							cawhite = 1
+						elif col == "W" and pos == "L":
+							chess[2][0] = "WK"
+							chess[3][0] = "WR"
+							chess[0][0] = "  "
+							chess[4][0] = "  "
+							cawhite = 1
+						elif col == "B" and pos == "R":
+							chess[6][7] = "BK"
+							chess[5][7] = "BR"
+							chess[7][7] = "  "
+							chess[4][7] = "  "
+							cablack = 1
+						else:
+							chess[2][7] = "BK"
+							chess[3][7] = "BR"
+							chess[0][7] = "  "
+							chess[4][7] = "  "
+							cablack = 1
 					else:
-						chess[2][7] = "BK"
-						chess[3][7] = "BR"
-						chess[0][7] = "  "
-						chess[4][7] = "  "
-						cablack = 1
+						print("Casting is not allowed.")
+						continue
 				else:
-					print("Casting is not allowed.")
+					print("Castling is being done using moved king and/or rook")
 					continue
 			else:
-				print("Castling is being done using moved king and/or rook")
-				continue
+				c = 0
+		if c == 0:
+			if str_verifier(string,prev_string,castreq,col,pos) == 1 and i == 0:
+				print("Chance is for player 1 which is black. You are moving white")
+			if str_verifier(string,prev_string,castreq,col,pos) == 1:
+				print("Two consecutive turns to a player is not allowed")
+			if str_verifier(string,prev_string,castreq,pos,col) == 2:
+				print("String input error")
+			if str_verifier(string,prev_string,castreq,pos,col) == 3:
+				print("Can't move spawn to it's current location")
+			if str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == False:
+				print("The mentioned spawn is not located at the secified block.")
+			if str_verifier(string,prev_string) == 0 and pos_verifier(string,chess) == False:
+				print("The position mentioned is out of reach")
+			if str_verifier(string,prev_string) == 0 and pos_avail_chk(string,chess) == False:
+				print("The road for the spawns journey is not clear")
+	print_board(chess,fallen)
+	if "BK" in fallen:
+		print("Player 2 wins!!!\nTurns = " + str(i//2))
+	elif "WK" in fallen:
+		print("Player 1 wins!!!\nTurns = " + str(i//2+1))
+	if re == 1:
+		continue
+	if "BK" in fallen or "WK" in fallen:
+		again = input("Do you want to play again?(input 'Y' for 'yes' and 'N' for 'no')\n")
+		if again.upper() == "Y":
+			continue
 		else:
-			c = 0
-	if c == 0:
-		if str_verifier(string,prev_string,castreq,col,pos) == 1 and i == 0:
-			print("Chance is for player 1 which is black. You are moving white")
-		if str_verifier(string,prev_string,castreq,col,pos) == 1:
-			print("Two consecutive turns to a player is not allowed")
-		if str_verifier(string,prev_string,castreq,pos,col) == 2:
-			print("String input error")
-		if str_verifier(string,prev_string,castreq,pos,col) == 3:
-			print("Can't move spawn to it's current location")
-		if str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == False:
-			print("The mentioned spawn is not located at the secified block.")
-		if str_verifier(string,prev_string) == 0 and pos_verifier(string,chess) == False:
-			print("The position mentioned is out of reach")
-		if str_verifier(string,prev_string) == 0 and pos_avail_chk(string,chess) == False:
-			print("The road for the spawns journey is not clear")
-print_board(chess,fallen)
-if "BK" in fallen:
-	print("Player 2 wins!!!\nTurns = " + str(i//2))
-else:
-	print("Player 1 wins!!!\nTurns = " + str(i//2+1))
+			print("THANK YOU FOR PLAYING!!! HOPE YOU HAD A GOOD TIME. SEE YOU SOON :)")
+			break
