@@ -2,7 +2,7 @@
 
 Hello Programming World!!!
 A gamer-coder here.
-hope to help and get help and Innovate.
+Hope to help and get help and Innovate.
 
 
-This repository contains python code for chess. It still lacks international rules. I have made this chess game simply using basic knowledge of lists(majorly) and dictionary(very slightly used). NO MODULES IMPORTED
+This repository contains python code for chess. It now supports castling and also has the ability to show if there is a CHECKMATE position I have made this chess game simply using basic knowledge of lists(majorly) and dictionary(very slightly used). NO MODULES IMPORTED
