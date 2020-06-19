@@ -57,7 +57,17 @@ def str_verifier(string,prev_str,castreq = 0,col = 0,pos = 0):
 			return 2
 
 # This fn has the duty to verify that the position mentioned is a valid move irrespective of position of other spawns	
-def pos_verifier(string,chess):
+def pos_verifier(string,chess,enpass = ['',False,'']):
+	if enpass[1] == True and string[1] == 'S':
+		if string[2]+string[3] in enpass[0] and string[6] == enpass[2][0]:
+			if string[0] == 'B' and int(string[3]) - int(string[7]) == 1:
+				return True
+			elif string[0] == "W" and int(string[7]) - int(string[3]) == 1:
+				return True
+			else:
+				return False
+		else:
+			return False
 	if string[1] == 'S':
 		if string[0] == 'B':
 			if string[3] == '6':
@@ -113,11 +123,17 @@ def pos_spawn_chk(string,chess):
 
 # This fn takes the user input str (in list form) and chess board nested list to move the spawn and check for any removal
 #dex[1] is used to verify if a king is fallen..If so then game ends
-def pos_mover(string,chess,enpasse = 0):
-	dex = chess[alpha_chk[string[6]]][int(string[7])]
-	chess[alpha_chk[string[6]]][int(string[7])] = chess[alpha_chk[string[2]]][int(string[3])]
-	chess[alpha_chk[string[2]]][int(string[3])] = "  "
-	list(chess[alpha_chk[string[6]]][int(string[7])]) == [string[4],string[5]]
+def pos_mover(string,chess,enpass):
+	if enpass[1] == True:
+		dex = chess[alpha_chk[enpass[2][0]]][int(enpass[2][1])]
+		chess[alpha_chk[enpass[2][0]]][int(enpass[2][1])] = "  "
+		chess[alpha_chk[string[6]]][int(string[7])] = chess[alpha_chk[string[2]]][int(string[3])]
+		chess[alpha_chk[string[2]]][int(string[3])] = "  "
+	else:
+		dex = chess[alpha_chk[string[6]]][int(string[7])]
+		chess[alpha_chk[string[6]]][int(string[7])] = chess[alpha_chk[string[2]]][int(string[3])]
+		chess[alpha_chk[string[2]]][int(string[3])] = "  "
+	#list(chess[alpha_chk[string[6]]][int(string[7])]) == [string[4],string[5]]
 	if dex != "  ":
 		fallen.append(dex)
 	if dex != "  ":
@@ -228,9 +244,8 @@ def pos_avail_chk(string,chess,chk_mate = 0):
 		orientation = "diagonal"
 	else:
 		orientation = "knight"
-	rutoe = road_chk(string,chess,orientation,chk_mate)
-	print(rutoe[0])
-	return rutoe
+	return road_chk(string,chess,orientation,chk_mate)
+
 #This function follows the respawn protocol
 prom = ["N","R","B","Q"]
 def promote_inp(col,chess):
@@ -285,6 +300,7 @@ def cast_allow_chk(col,pos):
 	else:
 		return False
 
+#This fn is to check for checkmate but is made general purpose to check for dangers for pawns other than king.
 def chkmate(loc,co):
 	col = alpha_chk[loc[0]]-1
 	row = int(loc[1])-1
@@ -413,7 +429,8 @@ def chkmate(loc,co):
 	if col+1<=7 and row+2<=7 and chess[col+1][row+2] == di[co]+'N':
 		return [chr(col+1+65)+str(int(row)+2),True]
 	return ['',False]
-	
+
+#This fn's duty is to check if the king can be saved fro any threats if the king is moved.
 def KingSaver(loc,chess):
 	pawn = chess[alpha_chk[loc[0]]][int(loc[1])]
 	chk = pawn + loc + pawn + loc[0] + str(int(loc[1])-1)
@@ -441,7 +458,24 @@ def KingSaver(loc,chess):
 	if str_verifier(chk,di[pawn[0]]) == 0 and pos_avail_chk(chk,chess)[1] == True and chkmate(chr(alpha_chk[loc[0]]-1+65) + loc[1],pawn[0])[1] == False:
 		return True
 	return False
-	
+
+#This fn checks for the possibility of en_passe
+def enpass_possi(string,chess):
+	col = alpha_chk[string[6]]
+	row = int(string[7])
+	passi = []
+	if col != 7 and chess[col+1][row] == di[string[0]]+"S":
+		passi.append(chr(col+1+65)+str(row))
+	if col != 0 and chess[col-1][row] == di[string[0]]+"S":
+		passi.append(chr(col-1+65)+str(row))
+	#print("passi")
+	#print(passi)
+	if passi:
+		return [passi,True]
+	else:
+		return ['',False]
+
+
 game = 0
 print("\t\t**********WELCOME TO ELECTRONIC CHESS**********")
 
@@ -471,6 +505,7 @@ while game == 0:
 			
 	fallen.clear()
 	possi_loc = []
+	enpass = ['',False,'']
 	while king_dead == 0:
 		print_board(chess,fallen)
 		print("Player 1 is BLACK.Player 2 is WHITE.")		
@@ -587,8 +622,33 @@ while game == 0:
 		c = 0
 		r = ''
 		checkmate = ['',False]
-		if castreq == 0 and str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == True and pos_verifier(string,chess) == True and pos_avail_chk(string,chess)[1] == True: 
-			qw = pos_mover(string,chess)
+		btrick = Blocation
+		wtrick = Wlocation
+		#print(enpass)
+		if castreq == 0 and str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == True and pos_verifier(string,chess,enpass) == True and pos_avail_chk(string,chess)[1] == True: 
+			qw = pos_mover(string,chess,enpass)
+			if string[0]+string[1] == "BK":
+				btrick = Blocation
+				Blocation = string[6]+string[7]
+			if string[0]+string[1] == "WK":
+				wtrick = Wlocation
+				Wlocation = string[6]+string[7]
+			if chkmate(Blocation,"B")[1] == True and chkmate(Wlocation,"W")[1] == True:
+				chess[alpha_chk[Blocation[0]]][int(Blocation[1])] = "  "
+				chess[alpha_chk[Wlocation[0]]][int(Wlocation[1])] = "  "
+				chess[alpha_chk[btrick[0]]][int(btrick[1])] = "BK"
+				chess[alpha_chk[wtrick[0]]][int(wtrick[1])] = "WK"
+				Blocation = btrick
+				Wlocation = wtrick
+				if qw != " ":
+					if i%2==0:
+						chess[alpha_chk[string[6]]][int(string[7])] = "W"+qw
+						fallen.remove("W"+qw)
+					else:
+						chess[alpha_chk[string[6]]][int(string[7])] = "B"+qw
+						fallen.remove("B"+qw)
+				print("A KING CAN'T CHECK OTHER KING...TRY AGAIN!!!")
+				continue
 			if string[:4] == "BKE7":
 				cdi["BK"] = 1
 			elif string[:4] == "WKE0":
@@ -605,6 +665,13 @@ while game == 0:
 				Blocation = string[6]+string[7]
 			if string[0]+string[1] == "WK":
 				Wlocation = string[6]+string[7]
+				
+			enpass = ['',False,'']
+			if string[1] == 'S' and abs(int(string[7])-int(string[3])) == 2:
+				enpass = enpass_possi(string,chess)
+				#print("enpass")
+				#print(enpass)
+				enpass.append(string[6]+string[7])
 			if qw == 'K':
 				king_dead = 1
 				continue
