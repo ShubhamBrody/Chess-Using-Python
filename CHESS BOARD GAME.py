@@ -251,22 +251,25 @@ prom = ["N","R","B","Q"]
 def promote_inp(col,chess):
 	for A in range(8):
 		i = chess[A][adp[col]]
-		if i == "BS":
+		if i == di[col]+"S":
 			print("You can Promote a soldier. Enter the code for the the replacing spawn.\n If you dont want to promote, enter 'none'.")
-			print("You can Promote from:\n"+di[col])
-			(" " + di[col]).join(prom)
+			print("You can Promote from:\n"+di[col],end = '')
+			print((" " + di[col]).join(prom))
+			c = 0
 			while c == 0:
 				promoter = input()
 				promoter = promoter.upper()
 				if promoter == "none":
 					break
+				elif promoter not in prom:
+					print("The string is wrong...Try Again!!!")
 				elif promoter[1] not in prom:
-					print("The spawn not in the list.")
+					print("The spawn not in the list...Try Again!!!")
 				elif promoter[0] != 'B':
-					print("You're not allowed to respawn this spawn")
+					print("You're not allowed to respawn this spawn...Try Again!!!")
 				else:
 					c = 1
-					print("The respawn request is accepted.")
+					print("The promotion request is accepted...Promotion Done!!!")
 			if promoter != "none":
 				chess[A][adp[col]] = promoter
 				break
@@ -543,15 +546,16 @@ while game == 0:
 			else:
 				loco = Wlocation
 			can_be_saved = KingSaver(loco,chess)
-			print(can_be_saved)
+			#print(can_be_saved)
 			Nmate = chkmate(checkmate[0],prev_string)
-			print(Nmate)
+			#print(Nmate)
 			if checked_by[1] == 'N':
 				if Nmate[1] == True and can_be_saved == True:
-					if string[1] == "K" and chkmate(string[6]+string[7],di[checked_by[0]])[1] != False:
+					if string[1] == "K" and chkmate(string[6]+string[7],string[0])[1] != False:
+						#print(chkmate(string[6]+string[7],string[0])[0])
 						print("CAN'T MOVE KING TO ANOTHER MATE LOCATION...TRY AGAIN!!!")
 						continue
-					elif string[6]+string[7] != checkmate[0]:
+					elif string[1] != "K" and string[6]+string[7] != checkmate[0]:
 						print("YOU MUST REMOVE YOUR CHECK FIRST...TRY AGAIN!!!")
 						continue
 				elif  Nmate[1] == True and can_be_saved == False:
@@ -569,6 +573,8 @@ while game == 0:
 					print("YOU ARE DOOMED!!!")
 			else:
 				possi_loc = pos_avail_chk(checked_by[0]+checked_by[1]+checkmate[0]+checked_by[0]+checked_by[1]+loco,chess,1)[0]
+				print(possi_loc)
+				print(checkmate[0])
 				if possi_loc and Nmate[1] == True:
 					if string[6]+string[7] not in possi_loc and string[6]+string[7] != checkmate[0]:
 						if can_be_saved == False:
@@ -601,7 +607,7 @@ while game == 0:
 							continue
 					else:
 						if string[1] == 'K':
-							if string[6]+string[7] != checkmate[0] or chkmate(string[6]+string[7],string[0]) == True:
+							if chkmate(string[6]+string[7],string[0]) == True and string[6]+string[7] != checkmate[0]:
 								print("CAN'T MOVE KING TO ANOTHER MATE LOCATION...TRY AGAIN!!!")
 								continue
 						else:
