@@ -624,6 +624,9 @@ while game == 0:
 		checkmate = ['',False]
 		btrick = Blocation
 		wtrick = Wlocation
+		if enpass[0]:
+			if string[6]!=enpass[2][0]:
+				enpass = ['',False,'']
 		#print(enpass)
 		if castreq == 0 and str_verifier(string,prev_string) == 0 and pos_spawn_chk(string,chess) == True and pos_verifier(string,chess,enpass) == True and pos_avail_chk(string,chess)[1] == True: 
 			qw = pos_mover(string,chess,enpass)
@@ -665,7 +668,6 @@ while game == 0:
 				Blocation = string[6]+string[7]
 			if string[0]+string[1] == "WK":
 				Wlocation = string[6]+string[7]
-				
 			enpass = ['',False,'']
 			if string[1] == 'S' and abs(int(string[7])-int(string[3])) == 2:
 				enpass = enpass_possi(string,chess)
