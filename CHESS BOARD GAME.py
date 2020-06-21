@@ -259,9 +259,9 @@ def promote_inp(col,chess):
 			while c == 0:
 				promoter = input()
 				promoter = promoter.upper()
-				if promoter == "none":
+				if promoter == "NONE":
 					break
-				elif promoter not in prom:
+				elif len(promoter) != 2:
 					print("The string is wrong...Try Again!!!")
 				elif promoter[1] not in prom:
 					print("The spawn not in the list...Try Again!!!")
@@ -573,11 +573,12 @@ while game == 0:
 					print("YOU ARE DOOMED!!!")
 			else:
 				possi_loc = pos_avail_chk(checked_by[0]+checked_by[1]+checkmate[0]+checked_by[0]+checked_by[1]+loco,chess,1)[0]
-				print(possi_loc)
-				print(checkmate[0])
+				#print(possi_loc)
+				#print(checkmate[0])
 				if possi_loc and Nmate[1] == True:
+					print("fgreg")
 					if string[6]+string[7] not in possi_loc and string[6]+string[7] != checkmate[0]:
-						if can_be_saved == False:
+						if not can_be_saved :
 							print("YOU MUST REMOVE YOUR CHECK FIRST...TRY AGAIN!!!")
 							continue
 						else:
@@ -588,18 +589,23 @@ while game == 0:
 								if chkmate(string[6]+string[7],string[0]) == False:
 									print("CAN'T MOVE KING TO ANOTHER MATE LOCATION...TRY AGAIN!!!")
 									continue
-				if possi_loc and Nmate[1] == False and string[6]+string[7] not in possi_loc:
-					if can_be_saved == False:
-						print("YOU MUST REMOVE YOUR CHECK FIRST...TRY AGAIN!!!")
-						continue
-					else:
-						if string[1] != 'K':
-								print("YOU MUST REMOVE YOUR CHECK FIRST...TRY AGAIN!!!")
-								continue
+				if possi_loc and Nmate[1] == False:
+					if string[6]+string[7] not in possi_loc:
+						if can_be_saved == False:
+							print("YOU MUST REMOVE YOUR CHECK FIRST...TRY AGAIN!!!")
+							continue
 						else:
-							if chkmate(string[6]+string[7],string[0]) == False:
-								print("CAN'T MOVE KING TO ANOTHER MATE LOCATION...TRY AGAIN!!!")
-								continue
+							if string[1] != 'K':
+									print("YOU MUST REMOVE YOUR CHECK FIRST...TRY AGAIN!!!")
+									continue
+							else:
+								if chkmate(string[6]+string[7],string[0]) == False:
+									print("CAN'T MOVE KING TO ANOTHER MATE LOCATION...TRY AGAIN!!!")
+									continue
+					else:
+						if can_be_saved != True and string[1] == 'K':
+							print("CAN'T MOVE KING TO ANOTHER MATE LOCATION...TRY AGAIN!!!")
+							continue
 				if not possi_loc and Nmate[1] == True:
 					if can_be_saved == False:
 						if string[6]+string[7] != checkmate[0]:
